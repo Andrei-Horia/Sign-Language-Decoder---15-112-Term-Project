@@ -8,6 +8,7 @@ For it to work, the user would have to create a sign in a certain area which wil
 # Code:
 
 The code will be distributed over three python files; each file will have a different function
+
 File 1: ImageWriter 
     This file allows other files to access the ImageWriter class
 		

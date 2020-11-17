@@ -1,6 +1,8 @@
 # Sign-Language-Decoder---15-112-Term-Project
 
-This program will decypher the sign language into normal text. 
+#This program will decypher the sign language into normal text. 
+
+#Instructions
 
 For it to work, the user would have to create a sign in a certain area, which will be represented by a black frame, wait two-three seconds without moving or changing the sign, so the program recognizes the sign and then completely remove the hand out of the box. After some time, the color of the frame will turn white and then black, indicating that the user can now create a different sign in the same area. This process repeats until the user decides to close the video by pressing 'q.'
 

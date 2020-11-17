@@ -12,8 +12,8 @@ File 1: ImageWriter
     This file allows other files to access the ImageWriter class
 		
 File 2: Videocapture
-This file records a live video of the user making the sign (I will use the videocapture feature of cv2)
-   I will also display a rectangle on the screen that will indicate the area/box where the user should create the sign.
+&nbsp This file records a live video of the user making the sign (I will use the videocapture feature of cv2)
+   &nbsp I will also display a rectangle on the screen that will indicate the area/box where the user should create the sign.
    
  The rectangle will have two phases:
   	Phase 1: The user is making the sign which means that the hand is inside the box. In this phase the rectangle will have a black border 

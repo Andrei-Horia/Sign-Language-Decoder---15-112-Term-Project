@@ -1,9 +1,10 @@
 import numpy as np
 import cv2
-#import Photoes
+import ClassImageProcessing
 
 cap = cv2.VideoCapture(0)
 
+imageChecker = False
 count = 0
 while(True):
     # Capture frame-by-frame
@@ -11,11 +12,10 @@ while(True):
 
     # Our operations on the frame come here
 
-    
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     #Set the color of the rectangle
-    if(count%100>=40 and count%100<60):
+    if(imageChecker == True):
         cv2.rectangle(gray,(450,150),(620,350),(255,255,255),3)
     else:
         cv2.rectangle(gray,(450,150),(620,350),(0,255,0),3)
@@ -23,10 +23,14 @@ while(True):
     # Display the resulting frame
     cv2.imshow('frame',gray)
 
-    #!!!!Uncomment only if required!!!!
-    #cv2.imwrite("d.jpg", frame)
+    cv2.imwrite("test" + str(count) + ".jpg", frame)
     count += 1
+
     
+    if((count-10)%100==0 and count >= 100):
+        imageChecker = ClassImageProcessing.ImageProcessing(count-10)
+        imageChecker = imageChecker.startAll()
+        
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

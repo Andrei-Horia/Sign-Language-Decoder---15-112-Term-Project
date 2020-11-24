@@ -1,0 +1,62 @@
+import Testing
+import tkinter
+import random
+
+def funt():
+    print("DA")
+
+class GUI:
+    def __init__(self):
+        self.window = tkinter.Tk()
+
+    def start(self):
+        window = self.window
+        window.title("Sign Language Decoder")
+        window.geometry("100x170")
+
+        button1 = tkinter.Button(window,text="Translate",command=self.popUpForTranslate)
+        button1.pack(pady="10")
+
+        button2 = tkinter.Button(window,text="Game",command=self.popUpForGame)
+        button2.pack(pady="10")
+
+        button3 = tkinter.Button(window,text="My Scores",command=self.getScores)
+        button3.pack(pady="10")
+        
+        window.mainloop()
+
+    def popUpForTranslate(self):
+        pop = tkinter.Toplevel()
+        pop.title("Translator")
+        lbl = tkinter.Label(pop,text="Place your hand in the center of the box\n Close this window to continue")
+        lbl.pack()
+        pop.protocol("WM_DELETE_WINDOW", lambda p=pop,m="T":self.on_closing(p,m))
+
+    def popUpForGame(self):
+        pop = tkinter.Toplevel()
+        pop.title("Game")
+        lbl = tkinter.Label(pop,text="Press 's' to submit a photo\n Close this window to continue")
+        lbl.pack()
+        pop.protocol("WM_DELETE_WINDOW", lambda p=pop,m="G":self.on_closing(p,m))
+        
+    def on_closing(self,p,mes):
+        p.destroy()
+
+        if(mes == 'T'):
+            Testing.record()
+        else:
+            Testing.gameRecord()
+
+    def getScores(self):
+        pop = tkinter.Toplevel()
+        pop.title("Scores")
+        lbl = tkinter.Label(pop,text="No scores available")
+        lbl.pack()
+
+        #Add the functionality
+        #Once the player finishes a game remember the score and add it here
+        #Top Score will be always placed first - As well as the attempt
+    
+
+P = GUI()
+P.start()

@@ -6,7 +6,7 @@ This program will decypher the sign language into normal text.
 
 For it to work, the user would have to create a sign in a certain area, which will be represented by a black frame, wait two-three seconds without moving or changing the sign, so the program recognizes the sign and then completely remove the hand out of the box. After some time, the color of the frame will turn white and then black, indicating that the user can now create a different sign in the same area. This process repeats until the user decides to close the video by pressing 'q.'
 
-Also, the program will have a learning tool in form of a game, which will test how well does the user know the signs. The user will have to make a given sign inside the box and then press 's' in order to submit the picture. Then the frame will either turn black, indicating a wrong sign, or white, indicating a correct answer. THe user can make signs and send them until he presses 'q' and exits.
+Also, the program will have a learning tool in form of a game, which will test how well does the user know the signs. The user will have to make a given sign inside the box and then press 's' in order to submit the picture. Then the frame will either turn black, indicating a wrong sign, or white, indicating a correct answer. The user can make signs and send them until he presses 'q' and exits.
 
 # Code:
 

@@ -6,8 +6,8 @@ import random
 
 class ImageProcessing():
     
-    def __init__(self,size):
-        self.pic = self.cropImage("test" + str(size) + ".jpg")
+    def __init__(self):
+        self.pic = self.cropImage("test.jpg")
 
     def cropImage(self,name):
         pic = ImageWriter.loadPicture(name)

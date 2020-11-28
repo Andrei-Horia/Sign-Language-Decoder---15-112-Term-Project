@@ -54,17 +54,37 @@ class ImageProcessing():
             self.fillCenter(left,right,up,down)
             self.fillSizes(left,right,up,down)
             self.fillGapsBlack(left,right,up,down)
-            
+
+            ImageWriter.showPicture(pic)
             
             result=self.calculate(left,right,up,down)
 
             res = self.table(result)
             
-            if(res in "ANT"):
-                loc = self.ANT(left,right,up,down)
+            if(res in "ANST"):
+                loc = self.ANST(left,right,up,down)
                 if(res != loc):
                     res = loc
-                    
+
+            if(res in "RU"):
+                loc = self.RU(left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "BME"):
+                loc = self.BME(left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "VW"):
+                loc = self.VW(left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "CP"):
+                loc = self.CP(left,right,up,down)
+                if(res!=loc):
+                    res = loc
             print(res)
         return False
 
@@ -307,7 +327,6 @@ class ImageProcessing():
 
     def table(self,result):
         min = 21000000
-        ImageWriter.showPicture(self.pic)
         Res = ""
         print(result)
         A,B,C,D = result[0],result[1],result[2],result[3]
@@ -337,7 +356,7 @@ class ImageProcessing():
                  #L 
                  [0.192 , 0.189 , 0.185 , 0.849 ],
                  #M
-                 [0.794 , 0.583 , 0.786 , 0.999 ],
+                 [0.604 , 0.473 , 0.906 , 0.999 ],
                  #N
                  [0.528 , 0.473 , 0.500 , 0.992 ],
                  #O
@@ -376,11 +395,15 @@ class ImageProcessing():
         return Res
 
     #Checker for letter A N and T
-    def ANT(self,startX,endX,startY,endY):
+    def ANST(self,startX,endX,startY,endY):
         pic = self.pic
         midY = (startY + endY)//2
+        
+        if(endY-startY<=150):
+           return "S"
+        
         for x in range(startX,endX):
-
+            
             col = ImageWriter.getColor(pic,x,startY + 20)
             
             if(col == [0,0,0]):
@@ -390,16 +413,117 @@ class ImageProcessing():
                     return ("T")
                 elif(x <= 60):
                     return ("N")
+                
 
-        ImageWriter.showPicture(pic)
 
     def RU(self,startX,endX,startY,endY):
-        pass
+        pic = self.pic
 
-    def ME(self,startX,endX,startY,endY):
-        pass
+        black1 = True
+        black2 = True
+        black3 = True
+        countRow1 = 0
+        countRow2 = 0
+        countRow3 = 0
+        
+        for x in range(startX+2,startX+70):
+            col1 = ImageWriter.getColor(pic,x,startY+20)
+            col2 = ImageWriter.getColor(pic,x,startY+25)
+            col3 = ImageWriter.getColor(pic,x,startY+15)
+
             
+            if(col1 == [0,0,0] and black1 == True):
+                countRow1 += 1
+                black1 = False
+
+            if(col1 == [0,255,0] and black1 == False):
+                black1 = True
+
+            if(countRow1 == 2):
+                return "R"
+
+            if(col2 == [0,0,0] and black2 == True):
+                countRow2 += 1
+                black2 = False
+                
+            if(col2 == [0,255,0] and black2 == False):
+                black2 = True
             
+            if(countRow2 == 2):
+                return "R"
+
+            if(col3 == [0,0,0] and black3 == True):
+                countRow3 += 1
+                black3 = False
+
+            if(col3 == [0,255,0] and black3 == False):
+                black3 = True
+
+            if(countRow3 == 2):
+                return "R"
+                
+        return "U"    
+        
+    def BME(self,startX,endX,startY,endY):
+        if(endY-startY) < 110:
+            return "M"
+        elif(endY-startY) < 170:
+            return "E"
+        return "B"
+
+    def VW(self,startX,endX,startY,endY):
+        pic = self.pic
+
+        black1 = True
+        black2 = True
+        black3 = True
+        countRow1 = 0
+        countRow2 = 0
+        count1 = 0
+        count2 = 0
+        
+        for x in range(startX+2,startX+100):
+            col1 = ImageWriter.getColor(pic,x,startY+20)
+            col2 = ImageWriter.getColor(pic,x,startY+25)
+
+            if(col1 == [0,0,0] and black1 == True and count1 >=5):
+                countRow1 += 1
+                black1 = False
+
+            if(col1 == [0,255,0] and black1 == False):
+                black1 = True
+                count1 = 0
+
+            if(col1 == [0,0,0]):
+                count1 += 1
+
+            if(countRow1 == 3):
+                return "W"
+
+            if(col2 == [0,0,0] and black2 == True and count2 >= 5):
+                countRow2 += 1
+                black2 = False
+                
+            if(col2 == [0,255,0] and black2 == False):
+                black2 = True
+                count2 = 0
+
+            if(col2 == [0,0,0]):
+                count2 += 1
+
+            if(countRow2 == 3):
+                return "W"
+                
+        return "V" 
+
+    def CP(self,startX,endX,startY,endY):
+        pic = self.pic
+        middX = (startX + endX)//2
+        middY = (startY + endY)//2
+        col = ImageWriter.getColor(pic,middX,middY)
+        if(col == [0,255,0]):
+            return "C"
+        return "P"
         
 class Game(ImageProcessing):
     def __init__(self,letter):
@@ -408,7 +532,12 @@ class Game(ImageProcessing):
 
     def start(self):
         pic = self.pic
+
         ImageProcessing.convertBlackandWhite(self)
+        
+        #loadingScreen = cv2.imread('LoadingScreen.jpg')
+        #loadingScreen = cv2.resize(loadingScreen, (640,482), interpolation = cv2.INTER_AREA)
+        #cv2.imshow('Loading Screen',loadingScreen)
 
         ok = 0
         for x in range(ImageWriter.getWidth(pic)):
@@ -419,7 +548,7 @@ class Game(ImageProcessing):
                     break
             if(ok == 1):
                 break
-            
+        
         if(ok==1):
             left,right = ImageProcessing.findFirstBlack(self)
             left = left - 1
@@ -441,12 +570,42 @@ class Game(ImageProcessing):
             ImageProcessing.fillSizes(self,left,right,up,down)
             ImageProcessing.fillGapsBlack(self,left,right,up,down)
                 
-                
+                            
             result=ImageProcessing.calculate(self,left,right,up,down)
 
             res = ImageProcessing.table(self,result)
+            if(res in "ANST"):
+                loc = ImageProcessing.ANST(self,left,right,up,down)
+                if(res != loc):
+                    res = loc
+
+            if(res in "RU"):
+                loc = ImageProcessing.RU(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "BME"):
+                loc = ImageProcessing.BME(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "VW"):
+                loc = ImageProcessing.VW(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+                    
+            if(res in "CP"):
+                loc = ImageProcessing.CP(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+                    
             print(res)
 
+            ImageWriter.showPicture(pic)
+            
+            #cv2.destroyAllWindows()
+
+            
             if(res == self.letter):
                 return True
             else:

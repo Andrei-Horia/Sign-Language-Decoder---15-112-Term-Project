@@ -55,11 +55,11 @@ class ImageProcessing():
             self.fillSizes(left,right,up,down)
             self.fillGapsBlack(left,right,up,down)
 
-            ImageWriter.showPicture(pic)
+            #ImageWriter.showPicture(pic)
             
             result=self.calculate(left,right,up,down)
 
-            res = self.table(result)
+            res = self.table(result,left,right,up,down)
             
             if(res in "ANST"):
                 loc = self.ANST(left,right,up,down)
@@ -76,8 +76,8 @@ class ImageProcessing():
                 if(res!=loc):
                     res = loc
 
-            if(res in "VW"):
-                loc = self.VW(left,right,up,down)
+            if(res in "FVW"):
+                loc = self.FVW(left,right,up,down)
                 if(res!=loc):
                     res = loc
 
@@ -85,7 +85,26 @@ class ImageProcessing():
                 loc = self.CP(left,right,up,down)
                 if(res!=loc):
                     res = loc
+
+            if(res in "IV"):
+                loc = self.IV(left,right,up,down)
+                if(res!=loc):
+                    res = loc
+                    
+            if(res in "VX"):
+                loc = self.VX(left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "KP"):
+                loc = self.KP(left,right,up,down)
+                if(res!=loc):
+                    res = loc
+            
+            
             print(res)
+            ImageWriter.showPicture(pic)
+
         return False
 
     #This function converts to grayscale and then to black and white    
@@ -325,14 +344,15 @@ class ImageProcessing():
 
   
 
-    def table(self,result):
+    def table(self,result,startX,endX,startY,endY):
         min = 21000000
         Res = ""
         print(result)
+        print(startY,endY)
         A,B,C,D = result[0],result[1],result[2],result[3]
         table = [
                  #A
-                 [0.6000 , 0.520 , 0.450 , 0.997 ],
+                 [0.600 , 0.520 , 0.450 , 0.997 ],
                  #B
                  [0.556 , 0.490 , 0.904 , 0.947 ],
                  #C
@@ -378,7 +398,7 @@ class ImageProcessing():
                  #W
                  [0.318 , 0.429 , 0.553 , 0.816 ],
                  #X
-                 [0.452 , 0.499 , 0.630 , 1.000 ],
+                 [0.352 , 0.169 , 0.630 , 0.970 ],
                  #Y
                  [0.084 , 0.396 , 0.545 , 0.992 ],
                  ]
@@ -427,9 +447,9 @@ class ImageProcessing():
         countRow3 = 0
         
         for x in range(startX+2,startX+70):
-            col1 = ImageWriter.getColor(pic,x,startY+20)
+            col1 = ImageWriter.getColor(pic,x,startY+30)
             col2 = ImageWriter.getColor(pic,x,startY+25)
-            col3 = ImageWriter.getColor(pic,x,startY+15)
+            col3 = ImageWriter.getColor(pic,x,startY+35)
 
             
             if(col1 == [0,0,0] and black1 == True):
@@ -471,22 +491,23 @@ class ImageProcessing():
             return "E"
         return "B"
 
-    def VW(self,startX,endX,startY,endY):
+    def FVW(self,startX,endX,startY,endY):
         pic = self.pic
 
         black1 = True
         black2 = True
-        black3 = True
+    
         countRow1 = 0
         countRow2 = 0
         count1 = 0
         count2 = 0
         
-        for x in range(startX+2,startX+100):
-            col1 = ImageWriter.getColor(pic,x,startY+20)
-            col2 = ImageWriter.getColor(pic,x,startY+25)
+        for x in range(startX+2,endX):
+            col1 = ImageWriter.getColor(pic,x,startY+35)
+            col2 = ImageWriter.getColor(pic,x,startY+50)
 
-            if(col1 == [0,0,0] and black1 == True and count1 >=5):
+            print("DA")          
+            if(col1 == [0,0,0] and black1 == True and count1 >=3):
                 countRow1 += 1
                 black1 = False
 
@@ -498,9 +519,11 @@ class ImageProcessing():
                 count1 += 1
 
             if(countRow1 == 3):
+                if(endX-startX>148):
+                    return "F"
                 return "W"
 
-            if(col2 == [0,0,0] and black2 == True and count2 >= 5):
+            if(col2 == [0,0,0] and black2 == True and count2 >= 3):
                 countRow2 += 1
                 black2 = False
                 
@@ -512,6 +535,8 @@ class ImageProcessing():
                 count2 += 1
 
             if(countRow2 == 3):
+                if(endX-startX>148):
+                    return "F"
                 return "W"
                 
         return "V" 
@@ -524,6 +549,65 @@ class ImageProcessing():
         if(col == [0,255,0]):
             return "C"
         return "P"
+
+    def IV(self,startX,endX,startY,endY):
+        pic = self.pic
+
+        black1 = True
+        black2 = True
+        black3 = True
+        countRow1 = 0
+        countRow2 = 0
+        countRow3 = 0
+        
+        for x in range(startX+2,endX):
+            col1 = ImageWriter.getColor(pic,x,startY+15)
+            col2 = ImageWriter.getColor(pic,x,startY+25)
+            col3 = ImageWriter.getColor(pic,x,startY+35)
+
+
+            if(col1 == [0,0,0] and black1 == True):
+                countRow1 += 1
+                black1 = False
+
+            if(col1 == [0,255,0] and black1 == False):
+                black1 = True
+
+            if(countRow1 == 2):
+                return "V"
+
+            if(col2 == [0,0,0] and black2 == True):
+                countRow2 += 1
+                black2 = False
+                
+            if(col2 == [0,255,0] and black2 == False):
+                black2 = True
+            
+            if(countRow2 == 2):
+                return "V"
+
+            if(col3 == [0,0,0] and black3 == True):
+                countRow3 += 1
+                black3 = False
+
+            if(col3 == [0,255,0] and black3 == False):
+                black3 = True
+
+            if(countRow3 == 2):
+                return "V"
+                
+        return "I"  
+
+    def VX(self,startX,endX,startY,endY):
+        if(endY-startY > 167):
+            return "V"
+        return "X"
+    
+    def KP(self,startX,endX,startY,endY):
+        if(endY - startY < 140):
+            return "K"
+        return "P"
+
         
 class Game(ImageProcessing):
     def __init__(self,letter):
@@ -573,7 +657,8 @@ class Game(ImageProcessing):
                             
             result=ImageProcessing.calculate(self,left,right,up,down)
 
-            res = ImageProcessing.table(self,result)
+            res = ImageProcessing.table(self,result,left,right,up,down)
+            
             if(res in "ANST"):
                 loc = ImageProcessing.ANST(self,left,right,up,down)
                 if(res != loc):
@@ -589,13 +674,28 @@ class Game(ImageProcessing):
                 if(res!=loc):
                     res = loc
 
-            if(res in "VW"):
-                loc = ImageProcessing.VW(self,left,right,up,down)
+            if(res in "FVW"):
+                loc = ImageProcessing.FVW(self,left,right,up,down)
                 if(res!=loc):
                     res = loc
                     
             if(res in "CP"):
                 loc = ImageProcessing.CP(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+                    
+            if(res in "IV"):
+                loc = ImageProcessing.IV(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+                    
+            if(res in "VX"):
+                loc = ImageProcessing.VX(self,left,right,up,down)
+                if(res!=loc):
+                    res = loc
+
+            if(res in "KP"):
+                loc = ImageProcessing.KP(self,left,right,up,down)
                 if(res!=loc):
                     res = loc
                     

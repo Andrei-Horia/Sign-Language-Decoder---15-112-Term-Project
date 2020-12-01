@@ -1,0 +1,304 @@
+import ImageWriter
+
+class IncreaseAccuracy():
+    def __init__(self,pic,letter,left,right,up,down):
+        self.letter = letter
+        self.pic = pic
+        self.left = left
+        self.right = right
+        self.up = up
+        self.down = down
+        
+
+    def all(self):
+
+        res = self.letter
+        left = self.left
+        right = self.right
+        up = self.up
+        down = self.down
+
+        if(res in "ANST"):
+            loc = self.ANST(left,right,up,down)
+            if(res != loc):
+                res = loc
+
+        if(res in "ONS"):
+            loc = self.ONS(res,left,right,up,down)
+            if(res != loc):
+                res = loc
+
+        if(res in "RU"):
+            loc = self.RU(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "BME"):
+            loc = self.BME(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "FVW"):
+            loc = self.FVW(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "IVF"):
+            loc = self.IVF(left,right,up,down)
+            if(res!=loc):
+                res = loc
+                    
+        if(res in "VX"):
+            loc = self.VX(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "KP"):
+            loc = self.KP(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "PV"):
+            loc = self.PV(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "KL"):
+            loc = self.KL(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "FK"):
+            loc = self.FK(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
+        if(res in "QZ"):
+            loc = self.QZ(left,right,up,down)
+            if(res!=loc):
+                res = loc
+                
+        return res
+                
+    #Checker for letter A N and T
+    def ANST(self,startX,endX,startY,endY):
+        pic = self.pic
+        midY = (startY + endY)//2
+        
+        if(endY-startY<=150):
+           return "S"
+        
+        for x in range(startX,endX):
+            
+            col = ImageWriter.getColor(pic,x,startY + 20)
+            
+            if(col == [0,0,0]):
+                if(x <= 8):
+                    return "A"
+                elif(x <= 17):
+                    return ("T")
+                elif(x <= 60):
+                    return ("N")
+                
+
+    def ONS(self,val,startX,endX,startY,endY):
+        midX = (startX+endX)//2
+        midY = (startY+endY)//2
+        pic = self.pic
+        col = ImageWriter.getColor(pic,midX,midY)
+        if(col == [0,255,0]):
+            return "O"
+
+        col = ImageWriter.getColor(pic,midX-10,endY-2)
+            
+        if(col == [0,255,0]):
+            return "O"
+        
+        return "N"
+
+    def RU(self,startX,endX,startY,endY):
+        pic = self.pic
+
+        black1 = True
+        black2 = True
+        black3 = True
+        countRow1 = 0
+        countRow2 = 0
+        countRow3 = 0
+        
+        for x in range(startX+2,startX+70):
+            col1 = ImageWriter.getColor(pic,x,startY+30)
+            col2 = ImageWriter.getColor(pic,x,startY+25)
+            col3 = ImageWriter.getColor(pic,x,startY+35)
+
+            
+            if(col1 == [0,0,0] and black1 == True):
+                countRow1 += 1
+                black1 = False
+
+            if(col1 == [0,255,0] and black1 == False):
+                black1 = True
+
+            if(countRow1 == 2):
+                return "R"
+
+            if(col2 == [0,0,0] and black2 == True):
+                countRow2 += 1
+                black2 = False
+                
+            if(col2 == [0,255,0] and black2 == False):
+                black2 = True
+            
+            if(countRow2 == 2):
+                return "R"
+
+            if(col3 == [0,0,0] and black3 == True):
+                countRow3 += 1
+                black3 = False
+
+            if(col3 == [0,255,0] and black3 == False):
+                black3 = True
+
+            if(countRow3 == 2):
+                return "R"
+                
+        return "U"    
+        
+    def BME(self,startX,endX,startY,endY):
+        if(endY-startY) < 110:
+            return "M"
+        elif(endY-startY) < 170:
+            return "E"
+        return "B"
+
+    def FVW(self,startX,endX,startY,endY):
+        pic = self.pic
+
+        black1 = True
+        black2 = True
+    
+        countRow1 = 0
+        countRow2 = 0
+        count1 = 0
+        count2 = 0
+        
+        for x in range(startX+2,endX):
+            col1 = ImageWriter.getColor(pic,x,startY+35)
+            col2 = ImageWriter.getColor(pic,x,startY+50)
+                                        
+            if(col1 == [0,0,0] and black1 == True and count1 >=3):
+                countRow1 += 1
+                black1 = False
+
+            if(col1 == [0,255,0] and black1 == False):
+                black1 = True
+                count1 = 0
+
+            if(col1 == [0,0,0]):
+                count1 += 1
+
+            if(countRow1 == 3):
+                if(endX-startX>148):
+                    return "F"
+                return "W"
+
+            if(col2 == [0,0,0] and black2 == True and count2 >= 3):
+                countRow2 += 1
+                black2 = False
+                
+            if(col2 == [0,255,0] and black2 == False):
+                black2 = True
+                count2 = 0
+
+            if(col2 == [0,0,0]):
+                count2 += 1
+
+            if(countRow2 == 3):
+                if(endX-startX>148):
+                    return "F"
+                return "W"
+                
+        return "V" 
+
+
+    def IVF(self,startX,endX,startY,endY):
+        pic = self.pic
+
+        black1 = True
+        black2 = True
+        black3 = True
+        countRow1 = 0
+        countRow2 = 0
+        countRow3 = 0
+        
+        for x in range(startX+2,endX):
+            col1 = ImageWriter.getColor(pic,x,startY+45)
+            col2 = ImageWriter.getColor(pic,x,startY+40)
+            col3 = ImageWriter.getColor(pic,x,startY+35)
+
+            ImageWriter.setColor(pic,x-1,startY+45,[255,0,0])
+            if(col1 == [0,0,0] and black1 == True):
+                countRow1 += 1
+                black1 = False
+
+            if(col1 == [0,255,0] and black1 == False):
+                black1 = True
+
+            if(countRow1 == 3):
+                return "F"
+
+            if(col2 == [0,0,0] and black2 == True):
+                countRow2 += 1
+                black2 = False
+                
+            if(col2 == [0,255,0] and black2 == False):
+                black2 = True
+            
+            if(countRow2 == 3):
+                return "F"
+
+            if(col3 == [0,0,0] and black3 == True):
+                countRow3 += 1
+                black3 = False
+
+            if(col3 == [0,255,0] and black3 == False):
+                black3 = True
+
+            if(countRow3 == 3):
+                return "F"
+
+        if(countRow1 == 2 or countRow2 == 2 or countRow3 == 2):
+            return "V"
+        return "I"  
+
+    def VX(self,startX,endX,startY,endY):
+        if(endY-startY > 167):
+            return "V"
+        return "X"
+    
+    def KP(self,startX,endX,startY,endY):
+        if(endY - startY < 140):
+            return "K"
+        return "P"
+
+    def PV(self,startX,endX,startY,endY):
+        if(endX-startX > 145):
+            return "P"
+        return "V"
+
+
+    def KL(self,startX,endX,startY,endY):
+        if(endY-startY > 130):
+            return "L"
+        return "K"
+
+    def FK(self,startX,endX,startY,endY):
+        if(endY-startY > 130):
+            return "F"
+        return "K"
+
+    def QZ(self,startX,endX,startY,endY):
+        col = ImageWriter.getColor(self.pic,startX + 15,endY-1)
+        if(col == [0,255,0]):
+            return "Q"
+        return "Z"

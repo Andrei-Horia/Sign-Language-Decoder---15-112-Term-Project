@@ -77,14 +77,20 @@ class IncreaseAccuracy():
             loc = self.QZ(left,right,up,down)
             if(res!=loc):
                 res = loc
-                
+
+        if(res in "EJ"):
+            loc = self.EJ(left,right,up,down)
+            if(res!=loc):
+                res = loc
+                        
         return res
                 
     #Checker for letter A N and T
     def ANST(self,startX,endX,startY,endY):
         pic = self.pic
         midY = (startY + endY)//2
-        
+
+        print(endY-startY)
         if(endY-startY<=150):
            return "S"
         
@@ -95,7 +101,7 @@ class IncreaseAccuracy():
             if(col == [0,0,0]):
                 if(x <= 8):
                     return "A"
-                elif(x <= 17):
+                elif(x <= 19):
                     return ("T")
                 elif(x <= 60):
                     return ("N")
@@ -109,12 +115,12 @@ class IncreaseAccuracy():
         if(col == [0,255,0]):
             return "O"
 
-        col = ImageWriter.getColor(pic,midX-10,endY-2)
+        col = ImageWriter.getColor(pic,midX+10,endY-2)
             
         if(col == [0,255,0]):
             return "O"
         
-        return "N"
+        return val
 
     def RU(self,startX,endX,startY,endY):
         pic = self.pic
@@ -302,3 +308,9 @@ class IncreaseAccuracy():
         if(col == [0,255,0]):
             return "Q"
         return "Z"
+
+    def EJ(self,startX,endX,startY,endY):
+        print(endX-startX)
+        if(endX-startX >= 150):
+            return "J"
+        return "E"

@@ -3,9 +3,6 @@ import tkinter
 import random
 import ClassImageProcessing
 
-def funt():
-    print("DA")
-
 class GUI:
 
     SCORES = []

@@ -2,9 +2,12 @@ import cv2
 import ImageWriter
 import sys
 import random
-
+import Accuracy
 
 class ImageProcessing():
+
+    MESSAGE = ""
+    COUNT = 3
     
     def __init__(self):
         self.pic = self.cropImage("test.jpg")
@@ -17,7 +20,7 @@ class ImageProcessing():
     def startAll(self):
         
         pic = self.pic
-    
+
         self.convertBlackandWhite()
 
         ok = 0
@@ -32,6 +35,10 @@ class ImageProcessing():
                 break
 
         if(ok==0):
+            ImageProcessing.MESSAGE += " "
+            if(ImageProcessing.COUNT%24==0):
+                ImageProcessing.MESSAGE += "\n"
+            ImageProcessing.COUNT += 1
             return True
 
         if(ok == 1):
@@ -60,48 +67,15 @@ class ImageProcessing():
             result=self.calculate(left,right,up,down)
 
             res = self.table(result,left,right,up,down)
-            
-            if(res in "ANST"):
-                loc = self.ANST(left,right,up,down)
-                if(res != loc):
-                    res = loc
 
-            if(res in "RU"):
-                loc = self.RU(left,right,up,down)
-                if(res!=loc):
-                    res = loc
+            print(res)
+            A = Accuracy.IncreaseAccuracy(pic,res,left,right,up,down)
+            res = A.all()
 
-            if(res in "BME"):
-                loc = self.BME(left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "FVW"):
-                loc = self.FVW(left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "CP"):
-                loc = self.CP(left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "IV"):
-                loc = self.IV(left,right,up,down)
-                if(res!=loc):
-                    res = loc
-                    
-            if(res in "VX"):
-                loc = self.VX(left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "KP"):
-                loc = self.KP(left,right,up,down)
-                if(res!=loc):
-                    res = loc
-            
-            
+            ImageProcessing.MESSAGE += res
+            if(ImageProcessing.COUNT%24==0):
+                ImageProcessing.MESSAGE += "\n"
+            ImageProcessing.COUNT += 1
             print(res)
             ImageWriter.showPicture(pic)
 
@@ -348,7 +322,6 @@ class ImageProcessing():
         min = 21000000
         Res = ""
         print(result)
-        print(startY,endY)
         A,B,C,D = result[0],result[1],result[2],result[3]
         table = [
                  #A
@@ -397,216 +370,42 @@ class ImageProcessing():
                  [0.281 , 0.500 , 0.640 , 0.845 ],
                  #W
                  [0.318 , 0.429 , 0.553 , 0.816 ],
-                 #X
-                 [0.352 , 0.169 , 0.630 , 0.970 ],
+                 #X1
+                 [0.632 , 0.329 , 0.760 , 0.920 ],
+                 #X2
+                 [0.318 , 0.342 , 0.627 , 0.910 ],
                  #Y
                  [0.084 , 0.396 , 0.545 , 0.992 ],
+                 #Z
+                 [0.211 , 0.700 , 0.966 , 1.000 ],
                  ]
-        for i in range(25):
+        for i in range(26):
             val = 0
             for j in range(4):
                 val += abs(result[j] - table[i][j])
 
             if(val<min):
                 min = val
-                Res = chr(65 + i)
+                if(i < 23):
+                    Res = chr(65 + i)
+                else:
+                    Res = chr(65 + i - 1)
                 
 
         return Res
 
-    #Checker for letter A N and T
-    def ANST(self,startX,endX,startY,endY):
-        pic = self.pic
-        midY = (startY + endY)//2
+    def getMessage(self):
+        return ImageProcessing.MESSAGE
+
+    def delete(self):
+        if(ImageProcessing.MESSAGE != " "):
+            ImageProcessing.MESSAGE = ImageProcessing.MESSAGE[:len(ImageProcessing.MESSAGE)-1]
         
-        if(endY-startY<=150):
-           return "S"
-        
-        for x in range(startX,endX):
-            
-            col = ImageWriter.getColor(pic,x,startY + 20)
-            
-            if(col == [0,0,0]):
-                if(x <= 8):
-                    return "A"
-                elif(x <= 17):
-                    return ("T")
-                elif(x <= 60):
-                    return ("N")
-                
+    def exit(self):
+        return (self.MESSAGE)
 
-
-    def RU(self,startX,endX,startY,endY):
-        pic = self.pic
-
-        black1 = True
-        black2 = True
-        black3 = True
-        countRow1 = 0
-        countRow2 = 0
-        countRow3 = 0
-        
-        for x in range(startX+2,startX+70):
-            col1 = ImageWriter.getColor(pic,x,startY+30)
-            col2 = ImageWriter.getColor(pic,x,startY+25)
-            col3 = ImageWriter.getColor(pic,x,startY+35)
-
-            
-            if(col1 == [0,0,0] and black1 == True):
-                countRow1 += 1
-                black1 = False
-
-            if(col1 == [0,255,0] and black1 == False):
-                black1 = True
-
-            if(countRow1 == 2):
-                return "R"
-
-            if(col2 == [0,0,0] and black2 == True):
-                countRow2 += 1
-                black2 = False
-                
-            if(col2 == [0,255,0] and black2 == False):
-                black2 = True
-            
-            if(countRow2 == 2):
-                return "R"
-
-            if(col3 == [0,0,0] and black3 == True):
-                countRow3 += 1
-                black3 = False
-
-            if(col3 == [0,255,0] and black3 == False):
-                black3 = True
-
-            if(countRow3 == 2):
-                return "R"
-                
-        return "U"    
-        
-    def BME(self,startX,endX,startY,endY):
-        if(endY-startY) < 110:
-            return "M"
-        elif(endY-startY) < 170:
-            return "E"
-        return "B"
-
-    def FVW(self,startX,endX,startY,endY):
-        pic = self.pic
-
-        black1 = True
-        black2 = True
-    
-        countRow1 = 0
-        countRow2 = 0
-        count1 = 0
-        count2 = 0
-        
-        for x in range(startX+2,endX):
-            col1 = ImageWriter.getColor(pic,x,startY+35)
-            col2 = ImageWriter.getColor(pic,x,startY+50)
-
-            print("DA")          
-            if(col1 == [0,0,0] and black1 == True and count1 >=3):
-                countRow1 += 1
-                black1 = False
-
-            if(col1 == [0,255,0] and black1 == False):
-                black1 = True
-                count1 = 0
-
-            if(col1 == [0,0,0]):
-                count1 += 1
-
-            if(countRow1 == 3):
-                if(endX-startX>148):
-                    return "F"
-                return "W"
-
-            if(col2 == [0,0,0] and black2 == True and count2 >= 3):
-                countRow2 += 1
-                black2 = False
-                
-            if(col2 == [0,255,0] and black2 == False):
-                black2 = True
-                count2 = 0
-
-            if(col2 == [0,0,0]):
-                count2 += 1
-
-            if(countRow2 == 3):
-                if(endX-startX>148):
-                    return "F"
-                return "W"
-                
-        return "V" 
-
-    def CP(self,startX,endX,startY,endY):
-        pic = self.pic
-        middX = (startX + endX)//2
-        middY = (startY + endY)//2
-        col = ImageWriter.getColor(pic,middX,middY)
-        if(col == [0,255,0]):
-            return "C"
-        return "P"
-
-    def IV(self,startX,endX,startY,endY):
-        pic = self.pic
-
-        black1 = True
-        black2 = True
-        black3 = True
-        countRow1 = 0
-        countRow2 = 0
-        countRow3 = 0
-        
-        for x in range(startX+2,endX):
-            col1 = ImageWriter.getColor(pic,x,startY+15)
-            col2 = ImageWriter.getColor(pic,x,startY+25)
-            col3 = ImageWriter.getColor(pic,x,startY+35)
-
-
-            if(col1 == [0,0,0] and black1 == True):
-                countRow1 += 1
-                black1 = False
-
-            if(col1 == [0,255,0] and black1 == False):
-                black1 = True
-
-            if(countRow1 == 2):
-                return "V"
-
-            if(col2 == [0,0,0] and black2 == True):
-                countRow2 += 1
-                black2 = False
-                
-            if(col2 == [0,255,0] and black2 == False):
-                black2 = True
-            
-            if(countRow2 == 2):
-                return "V"
-
-            if(col3 == [0,0,0] and black3 == True):
-                countRow3 += 1
-                black3 = False
-
-            if(col3 == [0,255,0] and black3 == False):
-                black3 = True
-
-            if(countRow3 == 2):
-                return "V"
-                
-        return "I"  
-
-    def VX(self,startX,endX,startY,endY):
-        if(endY-startY > 167):
-            return "V"
-        return "X"
-    
-    def KP(self,startX,endX,startY,endY):
-        if(endY - startY < 140):
-            return "K"
-        return "P"
+    def reset(self):
+        ImageProcessing.MESSAGE = ""
 
         
 class Game(ImageProcessing):
@@ -619,10 +418,6 @@ class Game(ImageProcessing):
 
         ImageProcessing.convertBlackandWhite(self)
         
-        #loadingScreen = cv2.imread('LoadingScreen.jpg')
-        #loadingScreen = cv2.resize(loadingScreen, (640,482), interpolation = cv2.INTER_AREA)
-        #cv2.imshow('Loading Screen',loadingScreen)
-
         ok = 0
         for x in range(ImageWriter.getWidth(pic)):
             for y in range(ImageWriter.getHeight(pic)):
@@ -659,46 +454,9 @@ class Game(ImageProcessing):
 
             res = ImageProcessing.table(self,result,left,right,up,down)
             
-            if(res in "ANST"):
-                loc = ImageProcessing.ANST(self,left,right,up,down)
-                if(res != loc):
-                    res = loc
-
-            if(res in "RU"):
-                loc = ImageProcessing.RU(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "BME"):
-                loc = ImageProcessing.BME(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "FVW"):
-                loc = ImageProcessing.FVW(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-                    
-            if(res in "CP"):
-                loc = ImageProcessing.CP(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-                    
-            if(res in "IV"):
-                loc = ImageProcessing.IV(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-                    
-            if(res in "VX"):
-                loc = ImageProcessing.VX(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-
-            if(res in "KP"):
-                loc = ImageProcessing.KP(self,left,right,up,down)
-                if(res!=loc):
-                    res = loc
-                    
+            A = Accuracy.IncreaseAccuracy(pic,res,left,right,up,down)
+            res = A.all()
+            
             print(res)
 
             ImageWriter.showPicture(pic)
@@ -710,3 +468,4 @@ class Game(ImageProcessing):
                 return True
             else:
                 return False
+        

@@ -10,7 +10,6 @@ def record():
     imageChecker = False
     count = 0
 
-
     loadingScreen = cv2.imread("L.jpg")
     loadingScreen = cv2.resize(loadingScreen, (640,482), interpolation = cv2.INTER_AREA)
 

@@ -9,7 +9,6 @@ class IncreaseAccuracy():
         self.up = up
         self.down = down
         
-
     def all(self):
 
         res = self.letter

@@ -5,7 +5,6 @@ import random
 import Accuracy
 
 class ImageProcessing():
-
     MESSAGE = ""
     COUNT = 3
     

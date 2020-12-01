@@ -15,6 +15,7 @@ def record():
     loadingScreen = cv2.resize(loadingScreen, (640,482), interpolation = cv2.INTER_AREA)
 
     lock = 10
+    letter = ""
     while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
@@ -31,6 +32,9 @@ def record():
         
         cv2.line(gray,(535,150),(535,350),(130,130,130),2)
         cv2.line(gray,(450,250),(620,250),(130,130,130),2)
+
+        if(letter != "" and letter != " "):
+            cv2.putText(gray,str(letter), (120,360), cv2.FONT_HERSHEY_SIMPLEX, 3, (255,255,255),10)
         # Display the resulting frame
         
         if lock<=7:
@@ -46,18 +50,31 @@ def record():
             lock = 0
 
         if(lock == 7):
-            imageChecker = ClassImageProcessing.ImageProcessing()
-            imageChecker = imageChecker.startAll()
+            A = ClassImageProcessing.ImageProcessing()
+            imageChecker = A.startAll()
+            val = A.getMessage()
+            letter = val[-1]
+            print(val)
 
+        pressedKey = cv2.waitKey(1) & 0xFF
             
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if pressedKey == ord('q'):
+            A = ClassImageProcessing.ImageProcessing()
             break
+        elif pressedKey == ord('d'):
+            A = ClassImageProcessing.ImageProcessing()
+            A.delete()
+            
 
     # When everything done, release the capture
 
     cap.release()
     #Photoes.init(200)
     cv2.destroyAllWindows()
+    val = A.exit()
+    A.reset()
+    return val
+    
 
 def gameRecord():
 
@@ -134,4 +151,4 @@ def gameRecord():
     cv2.destroyAllWindows()
     return correct
 
-record()
+#record()

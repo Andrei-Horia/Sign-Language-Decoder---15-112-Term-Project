@@ -1,471 +1,99 @@
-import cv2
-import ImageWriter
-import sys
+import Testing
+import tkinter
 import random
-import Accuracy
+import ClassImageProcessing
 
-class ImageProcessing():
+def funt():
+    print("DA")
 
-    MESSAGE = ""
-    COUNT = 3
-    
+class GUI:
+
+    SCORES = []
     def __init__(self):
-        self.pic = self.cropImage("test.jpg")
-
-    def cropImage(self,name):
-        pic = ImageWriter.loadPicture(name)
-    
-        return pic
-    
-    def startAll(self):
-        
-        pic = self.pic
-
-        self.convertBlackandWhite()
-
-        ok = 0
-        
-        for x in range(ImageWriter.getWidth(pic)):
-            for y in range(ImageWriter.getHeight(pic)):
-                col = ImageWriter.getColor(pic,x,y)
-                if(col == [0,0,0]):
-                    ok = 1
-                    break
-            if(ok == 1):
-                break
-
-        if(ok==0):
-            ImageProcessing.MESSAGE += " "
-            if(ImageProcessing.COUNT%24==0):
-                ImageProcessing.MESSAGE += "\n"
-            ImageProcessing.COUNT += 1
-            return True
-
-        if(ok == 1):
-            #Get vertical segmentatation
-            left,right = self.findFirstBlack()
-            left = left - 1
-
-            #Check Marker
-            for y in range(ImageWriter.getHeight(pic)):
-                ImageWriter.setColor(pic,left+1,y,[0,255,0])
-
-            #Get horizontal segmentation
-            up,down = self.horizontalSegmentation(left,right)
-            up = up - 1
-
-            #Check Marker
-            for x in range(ImageWriter.getWidth(pic)):
-                ImageWriter.setColor(pic,x,up+1,[0,255,0])
-
-            self.fillCenter(left,right,up,down)
-            self.fillSizes(left,right,up,down)
-            self.fillGapsBlack(left,right,up,down)
-
-            #ImageWriter.showPicture(pic)
-            
-            result=self.calculate(left,right,up,down)
-
-            res = self.table(result,left,right,up,down)
-
-            print(res)
-            A = Accuracy.IncreaseAccuracy(pic,res,left,right,up,down)
-            res = A.all()
-
-            ImageProcessing.MESSAGE += res
-            if(ImageProcessing.COUNT%24==0):
-                ImageProcessing.MESSAGE += "\n"
-            ImageProcessing.COUNT += 1
-            print(res)
-            ImageWriter.showPicture(pic)
-
-        return False
-
-    #This function converts to grayscale and then to black and white    
-    def convertBlackandWhite(self):
-        pic = self.pic
-        
-        width = ImageWriter.getWidth(pic)
-        height = ImageWriter.getHeight(pic)
-        col = []
-        for y in range(height):
-            for x in range(width):
-                col = ImageWriter.getColor(pic, x, y)
-
-                gray = sum(col)//3
-                avg = 255
-                
-                #Black and White check 
-                if(gray<=138.5):
-                    avg = 0
-                    
-                ImageWriter.setColor(pic,x,y,[avg,avg,avg])
-                
-    #This function does the vertical segmentation
-    def findFirstBlack(self):
-        pic = self.pic
-        
-        width = ImageWriter.getWidth(pic)
-        height = ImageWriter.getHeight(pic)
-        left, right = 0,0
-        countBlack = 0
-        maxBlack = 0
-        for x in range(width):
-            meetBlack = False
-            for y in range(height):
-                col = ImageWriter.getColor(pic,x,y)
-                
-                if(col == [0,0,0]):
-                   countBlack += 1
-                   meetBlack = True
-                   break
-            
-            if(meetBlack == False):
-                 if(countBlack > maxBlack):
-                        maxBlack = countBlack
-                        left = x - countBlack
-                        right = x
-                 countBlack = 0
-                    
-        
-        if(countBlack > maxBlack):
-             maxBlack = countBlack
-             left = x - countBlack
-             right = x
-                
-        return left,right
-        
-
-
-    #This function does the horizontal segmentation
-    def horizontalSegmentation(self,start,end):
-        pic = self.pic
-        width = end
-        height = ImageWriter.getHeight(pic)
-        up, down = 0,0
-        countBlack = 0
-        maxBlack = 0
-        for y in range(height):
-            meetBlack = False
-            for x in range(start,width):
-                col = ImageWriter.getColor(pic,x,y)
-                if(col == [0,0,0]):
-                   countBlack += 1
-                   meetBlack = True
-                   break
-
-            
-            if(meetBlack == False):
-                 if(countBlack > maxBlack):
-                        maxBlack = countBlack
-                        up = y - countBlack-1
-                        down = y
-                 countBlack = 0
-                    
-        if(countBlack > maxBlack):
-                maxBlack = countBlack
-                up = y - countBlack-1
-                down = y
-                   
-        return up,down
-
-    #This function fills the interior with green pixels
-    def fillCenter(self,startX,endX,startY,endY):
-        pic = self.pic
-
-        midY = (startY + endY)//2
-
-        midX = (startX + endX)//2
-
-        col = ImageWriter.getColor(pic,midX,midY)
-        if(col == [255,255,255]):
-            for x in range(midX,endX):
-                col = ImageWriter.getColor(pic,x,midY)
-                if(col == [255,255,255]):
-                    ImageWriter.setColor(pic,x,midY,[0,255,0])
-                else:
-                    break
-
-            for x in range(midX-1,startX,-1):
-                col = ImageWriter.getColor(pic,x,midY)
-                if(col == [255,255,255]):
-                    ImageWriter.setColor(pic,x,midY,[0,255,0])
-                else:
-                    break
-
-            for y in range(midY-1,startY,-1):
-                col = ImageWriter.getColor(pic,midX,y)
-                if(col == [255,255,255] or col == [0,255,0]):
-                    ImageWriter.setColor(pic,midX,y,[0,255,0])
-                else:
-                    break
-
-            
-            for y in range(midY,endY):
-                col = ImageWriter.getColor(pic,midX,y)
-                if(col == [255,255,255] or col == [0,255,0]):
-                    ImageWriter.setColor(pic,midX,y,[0,255,0])
-                else:
-                    break
-            
-            for y in range(midY+1,endY):
-
-                for x in range(startX+1,endX):
-                    col = ImageWriter.getColor(pic,x,y)
-                    colDown = ImageWriter.getColor(pic,x,y-1)
-                    
-                    if(col == [255,255,255]):
-                       if(colDown == [0,255,0]):
-                           ImageWriter.setColor(pic,x,y,[0,255,0])
-                    
-            for y in range(midY,startY,-1):
-
-                for x in range(startX+1,endX):
-                    col = ImageWriter.getColor(pic,x,y)
-                    colUp = ImageWriter.getColor(pic,x,y+1)
-                    
-                    if(col == [255,255,255]):
-                       if(colUp == [0,255,0]):
-                           ImageWriter.setColor(pic,x,y,[0,255,0])
-
-
-            for x in range(midX,endX):
-
-                for y in range(startY,endY):
-                    col = ImageWriter.getColor(pic,x,y)
-                    colLeft = ImageWriter.getColor(pic,x-1,y)
-                    
-                    if(col == [255,255,255]):
-                       if(colLeft == [0,255,0]):
-                           ImageWriter.setColor(pic,x,y,[0,255,0])
-
-            for x in range(midX,startX,-1):
-                for y in range(startY,endY):
-                    col = ImageWriter.getColor(pic,x,y)
-                    colRight = ImageWriter.getColor(pic,x+1,y)
-                    
-                    if(col == [255,255,255]):
-                       if(colRight == [0,255,0]):
-                           ImageWriter.setColor(pic,x,y,[0,255,0])
-
-
-    #This function fills the exterior with green pixels
-    def fillSizes(self,startX,endX,startY,endY):
-        pic = self.pic
-        
-        for y in range(startY,endY):
-
-            for x in range(startX+1,endX):
-                col = ImageWriter.getColor(pic,x,y)
-                colLeft = ImageWriter.getColor(pic,x-1,y)
-                colUp = ImageWriter.getColor(pic,x,y-1)
-                if(col == [255,255,255]):
-                    if(colLeft == [0,255,0] or colUp == [0,255,0]):
-                        ImageWriter.setColor(pic,x,y,[0,255,0])
-
-    #This function fill the white gaps after filling
-    def fillGapsBlack(self,startX,endX,startY,endY):
-        pic = self.pic
-        for x in range(startX,endX):
-            for y in range(startY,endY):
-                col = ImageWriter.getColor(pic,x,y)
-                if(col == [255,255,255]):
-                    ImageWriter.setColor(pic,x,y,[0,0,0])
-
-
-    #This function calculates the amount of black pixels in each quadrant
-    def calculate(self,startX,endX,startY,endY):
-        pic = self.pic
-        
-        midX,midY = 0,0
-        midX = (startX + endX)//2
-        midY = (startY + endY)//2
-
-        result = [0,0,0,0]
-        black = [0,0,0,0]
-        total = [0,0,0,0]
-
-        
-        for y in range(startY,endY):
-            for x in range(startX,endX):
-                
-                col = ImageWriter.getColor(pic,x,y)
-                if(x<midX and y<midY):
-                    if(col == [0,0,0]):
-                       black[0] += 1
-                    total[0] += 1
-                    
-
-                if(x>midX and y<midY):
-                    if(col == [0,0,0]):
-                       black[1] += 1
-                    total[1] += 1
-
-                if(x<midX and y>midY):
-                    if(col == [0,0,0]):
-                       black[2] += 1
-                    total[2] += 1
-
-                if(x>midX and y>midY):
-                    if(col == [0,0,0]):
-                       black[3] += 1
-                    total[3] += 1
-
-        result = [round(black[0]/total[0],3),round(black[1]/total[1],3),
-                  round(black[2]/total[2],3),round(black[3]/total[3],3)]
-
-        return result
-
-  
-
-    def table(self,result,startX,endX,startY,endY):
-        min = 21000000
-        Res = ""
-        print(result)
-        A,B,C,D = result[0],result[1],result[2],result[3]
-        table = [
-                 #A
-                 [0.600 , 0.520 , 0.450 , 0.997 ],
-                 #B
-                 [0.556 , 0.490 , 0.904 , 0.947 ],
-                 #C
-                 [0.350 , 0.504 , 0.299 , 0.842 ],
-                 #D
-                 [0.369 , 0.001 , 0.840 , 0.783 ],
-                 #E
-                 [0.605 , 0.555 , 0.752 , 0.885 ],
-                 #F
-                 [0.312 , 0.483 , 0.829 , 0.893 ],
-                 #G
-                 [0.402 , 0.801 , 0.060 , 0.820 ],
-                 #H
-                 [0.430 , 0.801 , 0.012 , 0.820 ],
-                 #I
-                 [0.243 , 0.486 , 0.800 , 0.975 ],
-                 #J
-                 [0.720 , 0.650 , 0.915 , 1.000 ],
-                 #K
-                 [0.240 , 0.450 , 0.610 , 0.900 ],
-                 #L 
-                 [0.192 , 0.189 , 0.185 , 0.849 ],
-                 #M
-                 [0.604 , 0.473 , 0.906 , 0.999 ],
-                 #N
-                 [0.528 , 0.473 , 0.500 , 0.992 ],
-                 #O
-                 [0.520 , 0.695 , 0.360 , 0.865 ],
-                 #P
-                 [0.330 , 0.420 , 0.362 , 0.854 ],
-                 #Q
-                 [0.130 , 0.846 , 0.580 , 1.000 ],
-                 #R
-                 [0.407 , 0.003 , 0.810 , 0.787 ],
-                 #S
-                 [0.674 , 0.705 , 0.510 , 0.992 ],
-                 #T
-                 [0.445 , 0.233 , 0.556 , 0.985 ],
-                 #U
-                 [0.560 , 0.000 , 0.907 , 0.677 ],
-                 #V
-                 [0.281 , 0.500 , 0.640 , 0.845 ],
-                 #W
-                 [0.318 , 0.429 , 0.553 , 0.816 ],
-                 #X1
-                 [0.632 , 0.329 , 0.760 , 0.920 ],
-                 #X2
-                 [0.318 , 0.342 , 0.627 , 0.910 ],
-                 #Y
-                 [0.084 , 0.396 , 0.545 , 0.992 ],
-                 #Z
-                 [0.211 , 0.700 , 0.966 , 1.000 ],
-                 ]
-        for i in range(26):
-            val = 0
-            for j in range(4):
-                val += abs(result[j] - table[i][j])
-
-            if(val<min):
-                min = val
-                if(i < 23):
-                    Res = chr(65 + i)
-                else:
-                    Res = chr(65 + i - 1)
-                
-
-        return Res
-
-    def getMessage(self):
-        return ImageProcessing.MESSAGE
-
-    def delete(self):
-        if(ImageProcessing.MESSAGE != " "):
-            ImageProcessing.MESSAGE = ImageProcessing.MESSAGE[:len(ImageProcessing.MESSAGE)-1]
-        
-    def exit(self):
-        return (self.MESSAGE)
-
-    def reset(self):
-        ImageProcessing.MESSAGE = ""
-
-        
-class Game(ImageProcessing):
-    def __init__(self,letter):
-        self.pic = ImageProcessing.cropImage(self,"game.jpg")
-        self.letter = chr(letter)
+        self.window = tkinter.Tk()
 
     def start(self):
-        pic = self.pic
+        window = self.window
+        window.title("Sign Language Decoder")
+        window.geometry("170x170")
 
-        ImageProcessing.convertBlackandWhite(self)
+        window.configure(bg="#a083c4")
+
+        button1 = tkinter.Button(window,height="1", width="8",text="Translate",command=self.popUpForTranslate,bg="#c6d2d2")
+        button1.pack(pady="10")
+
+        button2 = tkinter.Button(window,text="Game",command=self.popUpForGame,height="1", width="8",bg="#c6d2d2")
+        button2.pack(pady="10")
+
+        button3 = tkinter.Button(window,height='1',width='8',bg="#c6d2d2",text="My Scores",command=self.getScores)
+        button3.pack(pady="10")
         
-        ok = 0
-        for x in range(ImageWriter.getWidth(pic)):
-            for y in range(ImageWriter.getHeight(pic)):
-                col = ImageWriter.getColor(pic,x,y)
-                if(col == [0,0,0]):
-                    ok = 1
-                    break
-            if(ok == 1):
-                break
+        window.mainloop()
+
+    def popUpForTranslate(self):
+        pop = tkinter.Toplevel(self.window,bg="#a083c4")
+        pop.title("Translator")
+
+        messaje = "\n General Advice \n Place your hand in the gray box. \n Make sure you have only a frontal light and not much coming from the laterals. \n Every phote is sent after 3-4 seconds. \n\n Make sure you don't move while talking a photo! \n If you made a wrong sign you can always delete it by pressing 'd' \n Press 'q' if you want to exit and see your message \n Enjoy! \n ~Close this window to continue~ \n"
+        lbl = tkinter.Label(pop,bg="#a083c4",text=messaje)
+        lbl.config(font=("Courier", 10))
+        lbl.pack()
+        pop.protocol("WM_DELETE_WINDOW", lambda p=pop,m="T":self.on_closing(p,m))
+
+    def popUpForGame(self):
+        pop = tkinter.Toplevel(self.window,bg="#a083c4")
+        pop.title("Game")
+
+        messaje = "\n General Advice \n Place your hand in the gray box. \n Make sure you have only a frontal light and not much coming from the laterals. \n In order to send a photo press 's' \n\n The game has 5 rounds \n If the frame turns white for a split second you get a point. \n Press 'q' if you want to exit at any time. \nGood luck! \n ~Close this window to continue~ \n"
+        lbl = tkinter.Label(pop,bg="#a083c4",text=messaje)
+        lbl.config(font=("Courier", 10))
+        lbl.pack()
+        pop.protocol("WM_DELETE_WINDOW", lambda p=pop,m="G":self.on_closing(p,m))
+
         
-        if(ok==1):
-            left,right = ImageProcessing.findFirstBlack(self)
-            left = left - 1
+    def on_closing(self,p,mes):
+        p.destroy()
 
-            #Check Marker
-            for y in range(ImageWriter.getHeight(pic)):
-                ImageWriter.setColor(pic,left+1,y,[0,255,0])
+        if(mes == 'T'):
+            val = "  \n  "
+            val += Testing.record()
+            pop = tkinter.Toplevel()
+            pop.title("Message")
+            pop.geometry("300x200")
+            pop.configure(bg="#a083c4")
+
+            lbl = tkinter.Label(pop,text = val, heigh="200",width="300",anchor='nw',bg="#a083c4")
+            lbl.config(font=("Courier", 15))
+            lbl.pack()
+
+        else:
+            val = Testing.gameRecord()
+            GUI.SCORES.append(val)
 
 
-            #Get horizontal segmentation
-            up,down = ImageProcessing.horizontalSegmentation(self,left,right)
-            up = up - 1
+    def getScores(self):
+        pop = tkinter.Toplevel(bg="#a083c4")
+        pop.title("Scores")
 
-            #Check Marker
-            for x in range(ImageWriter.getWidth(pic)):
-                ImageWriter.setColor(pic,x,up+1,[0,255,0])
+        if(GUI.SCORES == []):
+            lbl = tkinter.Label(pop,text="No scores available",bg="#a083c4")
+            lbl.grid(pady="10",padx="10")
+        else:
+            message = "\nScores\n\n"
+            count = 0
+            for i in GUI.SCORES:
+                count += 1
+                message += str(count) + ": "+ str(i) + '/5\n'
 
-            ImageProcessing.fillCenter(self,left,right,up,down)
-            ImageProcessing.fillSizes(self,left,right,up,down)
-            ImageProcessing.fillGapsBlack(self,left,right,up,down)
-                
-                            
-            result=ImageProcessing.calculate(self,left,right,up,down)
-
-            res = ImageProcessing.table(self,result,left,right,up,down)
+            lbl = tkinter.Label(pop,text=message,width="20",foreground="black",bg="#a083c4")
+            lbl.config(font=("Courier", 15))
+            lbl.grid(pady="10")
             
-            A = Accuracy.IncreaseAccuracy(pic,res,left,right,up,down)
-            res = A.all()
-            
-            print(res)
 
-            ImageWriter.showPicture(pic)
-            
-            #cv2.destroyAllWindows()
+        #Add the functionality
+        #Once the player finishes a game remember the score and add it here
+        #Top Score will be always placed first - As well as the attempt
+    
 
-            
-            if(res == self.letter):
-                return True
-            else:
-                return False
-        
+P = GUI()
+P.start()

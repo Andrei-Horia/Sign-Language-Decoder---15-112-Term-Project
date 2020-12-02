@@ -4,25 +4,43 @@ import sys
 import random
 import Accuracy
 
+
+###-----------------ImageProcessing-----------------####
+
 class ImageProcessing():
-    MESSAGE = ""
-    COUNT = 3
     
+    #Messag will be used to store the Message
+    MESSAGE = ""
+    #Count will be used to know when to add a '\n' in the message
+    COUNT = 3
+
+    #For __init__() we only need a picture
     def __init__(self):
         self.pic = self.cropImage("test.jpg")
 
+    #This function will crop the image exactly to the rectangle
+        #For it to work, I had to make a little adjustemnt in the ImageWriter class
     def cropImage(self,name):
         pic = ImageWriter.loadPicture(name)
     
         return pic
-    
+
+    #This function will start all the other functions
+    #Steps
+    #1. Convert to Black and White
+    #2. Horizontal and Vertical Segmentations
+    #3. Fill(Middle, Laterals)
+    #4. Calculate the percent
+    #5. Compare to table
     def startAll(self):
         
         pic = self.pic
 
+        #Convert
         self.convertBlackandWhite()
 
         ok = 0
+
         
         for x in range(ImageWriter.getWidth(pic)):
             for y in range(ImageWriter.getHeight(pic)):
@@ -33,6 +51,8 @@ class ImageProcessing():
             if(ok == 1):
                 break
 
+        #Since we can have only 24 characters on a line
+            #We add a newline after 24
         if(ok==0):
             ImageProcessing.MESSAGE += " "
             if(ImageProcessing.COUNT%24==0):
@@ -57,26 +77,33 @@ class ImageProcessing():
             for x in range(ImageWriter.getWidth(pic)):
                 ImageWriter.setColor(pic,x,up+1,[0,255,0])
 
+
+            #Fill
             self.fillCenter(left,right,up,down)
             self.fillSizes(left,right,up,down)
             self.fillGapsBlack(left,right,up,down)
 
             #ImageWriter.showPicture(pic)
-            
+
+            #Calculate 
             result=self.calculate(left,right,up,down)
 
+            #Compare
             res = self.table(result,left,right,up,down)
 
-            print(res)
+            #Increase Accuracy
             A = Accuracy.IncreaseAccuracy(pic,res,left,right,up,down)
             res = A.all()
 
+            #Add the message
             ImageProcessing.MESSAGE += res
+            
             if(ImageProcessing.COUNT%24==0):
                 ImageProcessing.MESSAGE += "\n"
             ImageProcessing.COUNT += 1
-            print(res)
-            ImageWriter.showPicture(pic)
+
+            #print(res)
+            #ImageWriter.showPicture(pic)
 
         return False
 
@@ -91,6 +118,7 @@ class ImageProcessing():
             for x in range(width):
                 col = ImageWriter.getColor(pic, x, y)
 
+                #Convert to grayscale
                 gray = sum(col)//3
                 avg = 255
                 
@@ -101,6 +129,13 @@ class ImageProcessing():
                 ImageWriter.setColor(pic,x,y,[avg,avg,avg])
                 
     #This function does the vertical segmentation
+    #It accounts for the blob with the largest height
+    #Algoroithm
+        #Scan vertically and horizontally
+        #If we meet a black pixel we increase the blob size
+        #If after that we meet a white pixel
+            #Compare the blob with a maximum one
+    #Return the coordinates of the maximum
     def findFirstBlack(self):
         pic = self.pic
         
@@ -118,8 +153,10 @@ class ImageProcessing():
                    countBlack += 1
                    meetBlack = True
                    break
-            
+
             if(meetBlack == False):
+                
+                #If out blob is larger update the maximum
                  if(countBlack > maxBlack):
                         maxBlack = countBlack
                         left = x - countBlack
@@ -137,6 +174,8 @@ class ImageProcessing():
 
 
     #This function does the horizontal segmentation
+    #The algorithm is very similar to findFirstBlack
+    #The only difference is that we move horizontally and vertically
     def horizontalSegmentation(self,start,end):
         pic = self.pic
         width = end
@@ -155,6 +194,7 @@ class ImageProcessing():
 
             
             if(meetBlack == False):
+                #Compare with maximum
                  if(countBlack > maxBlack):
                         maxBlack = countBlack
                         up = y - countBlack-1
@@ -169,6 +209,12 @@ class ImageProcessing():
         return up,down
 
     #This function fills the interior with green pixels
+    #We will split the interior into 4 parts
+    #We will draw a green line from the center to the x-extremities(first black pixels)
+    #We will draw a green line for the crenter to the y-extremities
+    #It will look similar to a cross
+    #Then, each of the formed 4 areas will be filled both vertically and horizontally
+        #tO ensure that we don't miss a pixel
     def fillCenter(self,startX,endX,startY,endY):
         pic = self.pic
 
@@ -178,13 +224,16 @@ class ImageProcessing():
 
         col = ImageWriter.getColor(pic,midX,midY)
         if(col == [255,255,255]):
+
+            #Left Green Line
             for x in range(midX,endX):
                 col = ImageWriter.getColor(pic,x,midY)
                 if(col == [255,255,255]):
                     ImageWriter.setColor(pic,x,midY,[0,255,0])
                 else:
                     break
-
+                
+            #Right Green Line
             for x in range(midX-1,startX,-1):
                 col = ImageWriter.getColor(pic,x,midY)
                 if(col == [255,255,255]):
@@ -192,21 +241,23 @@ class ImageProcessing():
                 else:
                     break
 
+            #Top Green Line
             for y in range(midY-1,startY,-1):
                 col = ImageWriter.getColor(pic,midX,y)
                 if(col == [255,255,255] or col == [0,255,0]):
                     ImageWriter.setColor(pic,midX,y,[0,255,0])
                 else:
                     break
-
-            
+        
+            #Bottom Green Line 
             for y in range(midY,endY):
                 col = ImageWriter.getColor(pic,midX,y)
                 if(col == [255,255,255] or col == [0,255,0]):
                     ImageWriter.setColor(pic,midX,y,[0,255,0])
                 else:
                     break
-            
+
+            #fill for the y
             for y in range(midY+1,endY):
 
                 for x in range(startX+1,endX):
@@ -217,6 +268,7 @@ class ImageProcessing():
                        if(colDown == [0,255,0]):
                            ImageWriter.setColor(pic,x,y,[0,255,0])
                     
+            #fill for the y
             for y in range(midY,startY,-1):
 
                 for x in range(startX+1,endX):
@@ -227,7 +279,7 @@ class ImageProcessing():
                        if(colUp == [0,255,0]):
                            ImageWriter.setColor(pic,x,y,[0,255,0])
 
-
+            #fill for the x 
             for x in range(midX,endX):
 
                 for y in range(startY,endY):
@@ -237,7 +289,8 @@ class ImageProcessing():
                     if(col == [255,255,255]):
                        if(colLeft == [0,255,0]):
                            ImageWriter.setColor(pic,x,y,[0,255,0])
-
+                           
+            #fill for the x
             for x in range(midX,startX,-1):
                 for y in range(startY,endY):
                     col = ImageWriter.getColor(pic,x,y)
@@ -249,6 +302,9 @@ class ImageProcessing():
 
 
     #This function fills the exterior with green pixels
+    #For it to work we draw a line a green line at the starting position
+    #For each pixel, if it is white, and the left or top one are green
+        #Change the color of the pixel to green
     def fillSizes(self,startX,endX,startY,endY):
         pic = self.pic
         
@@ -263,16 +319,22 @@ class ImageProcessing():
                         ImageWriter.setColor(pic,x,y,[0,255,0])
 
     #This function fill the white gaps after filling
+    #If there is a white pixel, convert is to black
     def fillGapsBlack(self,startX,endX,startY,endY):
         pic = self.pic
         for x in range(startX,endX):
-            for y in range(startY,endY):
+            for y in range(startY,endY): 
                 col = ImageWriter.getColor(pic,x,y)
+                #Here we convert
                 if(col == [255,255,255]):
                     ImageWriter.setColor(pic,x,y,[0,0,0])
 
 
     #This function calculates the amount of black pixels in each quadrant
+    #We will have to 4-value lists
+        #One will store the amount of black pixels in each quadrant
+        #The other one will store the total amount of pixels in each quadrant
+    #Divide them
     def calculate(self,startX,endX,startY,endY):
         pic = self.pic
         
@@ -316,12 +378,15 @@ class ImageProcessing():
         return result
 
   
-
+    #This function will simply contain the table of values
+    #We will calculate the letter similar to License Plate Decoder
     def table(self,result,startX,endX,startY,endY):
         min = 21000000
         Res = ""
-        print(result)
+        #print(result)
         A,B,C,D = result[0],result[1],result[2],result[3]
+
+        #All values 
         table = [
                  #A
                  [0.600 , 0.520 , 0.450 , 0.997 ],
@@ -378,6 +443,8 @@ class ImageProcessing():
                  #Z
                  [0.211 , 0.700 , 0.966 , 1.000 ],
                  ]
+
+        #Calculate the minimum one
         for i in range(26):
             val = 0
             for j in range(4):
@@ -393,30 +460,45 @@ class ImageProcessing():
 
         return Res
 
+    #This function returns the current message
     def getMessage(self):
         return ImageProcessing.MESSAGE
 
+    #This fuction deletes a character from the message
     def delete(self):
         if(ImageProcessing.MESSAGE != " "):
             ImageProcessing.MESSAGE = ImageProcessing.MESSAGE[:len(ImageProcessing.MESSAGE)-1]
-        
-    def exit(self):
-        return (self.MESSAGE)
 
+    #This function resets the Message
     def reset(self):
         ImageProcessing.MESSAGE = ""
-
         
+
+###-----------------GAME--------------------###
+
+#For this class we want to inherit from the ImageProcessing Class
+#Most of the code is very similar, however, there are some differences
+    #So, we don't want to inherit directly StartAll
 class Game(ImageProcessing):
+
+    #For __init__() we need only the letter and the picture
     def __init__(self,letter):
         self.pic = ImageProcessing.cropImage(self,"game.jpg")
         self.letter = chr(letter)
 
+    #Start all the function similar to StartAll
+    #Steps
+    #1. Convert to Black and White
+    #2. Horizontal and Vertical Segmentations
+    #3. Fill(Middle, Laterals)
+    #4. Calculate the percent
+    #5. Compare to table
     def start(self):
         pic = self.pic
 
+        #Convert
         ImageProcessing.convertBlackandWhite(self)
-        
+
         ok = 0
         for x in range(ImageWriter.getWidth(pic)):
             for y in range(ImageWriter.getHeight(pic)):
@@ -444,21 +526,24 @@ class Game(ImageProcessing):
             for x in range(ImageWriter.getWidth(pic)):
                 ImageWriter.setColor(pic,x,up+1,[0,255,0])
 
+            #Fill
             ImageProcessing.fillCenter(self,left,right,up,down)
             ImageProcessing.fillSizes(self,left,right,up,down)
             ImageProcessing.fillGapsBlack(self,left,right,up,down)
-                
-                            
+                 
+            #Calculate           
             result=ImageProcessing.calculate(self,left,right,up,down)
 
+            #Compare
             res = ImageProcessing.table(self,result,left,right,up,down)
-            
+
+            #Increase Accuracy
             A = Accuracy.IncreaseAccuracy(pic,res,left,right,up,down)
             res = A.all()
             
-            print(res)
+            #print(res)
 
-            ImageWriter.showPicture(pic)
+            #ImageWriter.showPicture(pic)
             
             #cv2.destroyAllWindows()
 

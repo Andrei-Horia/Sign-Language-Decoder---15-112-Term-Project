@@ -1,4 +1,4 @@
-import Testing
+import Videocapture
 import tkinter
 import random
 import ClassImageProcessing
@@ -66,8 +66,8 @@ class GUI:
     #This will handle the closing action
     #Depending on the message 'T' , 'G' we will know
         #Whether it's for the Game or Translate
-    #If 'T' - call Testing.record(Videocapture)
-    #If 'G' - call Testing.gameRecord(Videocapture)
+    #If 'T' - call Videocapture.record(Videocapture)
+    #If 'G' - call Videocapture.gameRecord(Videocapture)
     #For 'T' we want to display the message at the end, so we get it and
         #display it on a separate window
     #For 'G' we want to update the scores
@@ -76,7 +76,7 @@ class GUI:
 
         if(mes == 'T'):
             val = "  \n  "
-            val += Testing.record()
+            val += Videocapture.record()
             pop = tkinter.Toplevel()
             pop.title("Message")
             pop.geometry("300x200")
@@ -87,7 +87,7 @@ class GUI:
             lbl.pack()
 
         else:
-            val = Testing.gameRecord()
+            val = Videocapture.gameRecord()
             GUI.SCORES.append(val)
 
     #This function updates the scores

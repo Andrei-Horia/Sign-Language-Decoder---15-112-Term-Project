@@ -3,12 +3,18 @@ import tkinter
 import random
 import ClassImageProcessing
 
+###-----------User Interface------------###
 class GUI:
 
+    #Always remeber the scores
     SCORES = []
+
+    #We need a main window for __init__()
     def __init__(self):
         self.window = tkinter.Tk()
 
+    #Start will create the main functionality
+    #Three buttons, one for translate, one for game, and one for scores
     def start(self):
         window = self.window
         window.title("Sign Language Decoder")
@@ -16,17 +22,23 @@ class GUI:
 
         window.configure(bg="#a083c4")
 
+        #Translate
         button1 = tkinter.Button(window,height="1", width="8",text="Translate",command=self.popUpForTranslate,bg="#c6d2d2")
         button1.pack(pady="10")
 
+        #Game
         button2 = tkinter.Button(window,text="Game",command=self.popUpForGame,height="1", width="8",bg="#c6d2d2")
         button2.pack(pady="10")
 
+        #Scores
         button3 = tkinter.Button(window,height='1',width='8',bg="#c6d2d2",text="My Scores",command=self.getScores)
         button3.pack(pady="10")
         
         window.mainloop()
 
+    #When Translate button is pressed, laungh this pop-up
+    #It will contain some general advice
+    #Once the pop-up is closed, run the record from VideoCapture()
     def popUpForTranslate(self):
         pop = tkinter.Toplevel(self.window,bg="#a083c4")
         pop.title("Translator")
@@ -37,6 +49,9 @@ class GUI:
         lbl.pack()
         pop.protocol("WM_DELETE_WINDOW", lambda p=pop,m="T":self.on_closing(p,m))
 
+    #When Game button is pressed, laungh this pop-up
+    #It will contain some general advice
+    #Once the pop-up is closed, run the gameRecord from VideoCapture()
     def popUpForGame(self):
         pop = tkinter.Toplevel(self.window,bg="#a083c4")
         pop.title("Game")
@@ -47,7 +62,15 @@ class GUI:
         lbl.pack()
         pop.protocol("WM_DELETE_WINDOW", lambda p=pop,m="G":self.on_closing(p,m))
 
-        
+
+    #This will handle the closing action
+    #Depending on the message 'T' , 'G' we will know
+        #Whether it's for the Game or Translate
+    #If 'T' - call Testing.record(Videocapture)
+    #If 'G' - call Testing.gameRecord(Videocapture)
+    #For 'T' we want to display the message at the end, so we get it and
+        #display it on a separate window
+    #For 'G' we want to update the scores
     def on_closing(self,p,mes):
         p.destroy()
 
@@ -67,17 +90,24 @@ class GUI:
             val = Testing.gameRecord()
             GUI.SCORES.append(val)
 
-
+    #This function updates the scores
+    #If we have no Scores - display a "No score" message
+    #If we have Scores - add them in a label
+    #Display the label
     def getScores(self):
         pop = tkinter.Toplevel(bg="#a083c4")
         pop.title("Scores")
 
+        #Here we check for Scores
         if(GUI.SCORES == []):
             lbl = tkinter.Label(pop,text="No scores available",bg="#a083c4")
             lbl.grid(pady="10",padx="10")
         else:
+
             message = "\nScores\n\n"
             count = 0
+            
+            #Add the Scores
             for i in GUI.SCORES:
                 count += 1
                 message += str(count) + ": "+ str(i) + '/5\n'
@@ -87,10 +117,6 @@ class GUI:
             lbl.grid(pady="10")
             
 
-        #Add the functionality
-        #Once the player finishes a game remember the score and add it here
-        #Top Score will be always placed first - As well as the attempt
-    
-
+#Start All
 P = GUI()
 P.start()

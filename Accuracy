@@ -20,11 +20,13 @@ class IncreaseAccuracy():
         up = self.up
         down = self.down
 
+        print(res)
         if(res in "ANST"):
             loc = self.ANST(left,right,up,down)
             if(res != loc):
                 res = loc
 
+        print(res)
         if(res in "ONS"):
             loc = self.ONS(res,left,right,up,down)
             if(res != loc):
@@ -49,11 +51,22 @@ class IncreaseAccuracy():
             loc = self.IVF(left,right,up,down)
             if(res!=loc):
                 res = loc
-                    
+
+        if(res in "VZ"):
+            loc = self.VZ(left,right,up,down)
+            if(res!=loc):
+                res = loc
+                
         if(res in "VX"):
             loc = self.VX(left,right,up,down)
             if(res!=loc):
                 res = loc
+
+        if(res in "IZ"):
+            loc = self.IZ(left,right,up,down)
+            if(res!=loc):
+                res = loc
+
 
         if(res in "KP"):
             loc = self.KP(left,right,up,down)
@@ -110,9 +123,10 @@ class IncreaseAccuracy():
                 if(x <= 8):
                     return "A"
                 elif(x <= 19):
-                    return ("T")
+                    return "T"
                 elif(x <= 60):
-                    return ("N")
+                    return "N"
+        return "N"
                 
     #Function to check for O N and S
     #We will look at two things
@@ -320,6 +334,27 @@ class IncreaseAccuracy():
             return "V"
         return "I"  
 
+    #Function to check for V and Z
+    #Works similar to FVW
+    #Draw a line
+        #If it intersects into two points - it's a V
+        #Otherwise: it's a Z
+    def VZ(self,startX,endX,startY,endY):
+        pic = self.pic
+        count = 0
+        meetBlack = False
+        for x in range(startX,endX):
+            col = ImageWriter.getColor(pic,x,startY+20)
+            if(col == [0,0,0] and not meetBlack):
+                count += 1
+                meetBlack = True
+            if(col == [0,255,0]):
+                meetBlack = False
+
+        if(count == 2):
+            return "V"
+        return "X"
+        
     #Function to check for V and X
     #It's based on the height of the sign
     #If the sign is average - it's a X
@@ -329,6 +364,25 @@ class IncreaseAccuracy():
             return "V"
         return "X"
 
+    #!!!!Highly Increases Accuracy!!!!
+        #However, very slow
+    #Function to check for I and Z
+    def IZ(self,startX,endX,startY,endY):
+        pic = self.pic
+        total = 0
+        black = 0
+        for y in range(startY,endY):
+            for x in range(startX,endX):
+                col = ImageWriter.getColor(pic,x,y)
+                if(col == [0,0,0]):
+                    black += 1
+                total += 1
+
+        if(100 * (black/total) > 60):
+            return "Z"
+        return "I"
+                
+            
     #Function to check for K and P
     def KP(self,startX,endX,startY,endY):
         if(endY - startY < 140):
@@ -355,7 +409,7 @@ class IncreaseAccuracy():
 
     #Function to check for Q and Z
     def QZ(self,startX,endX,startY,endY):
-        col = ImageWriter.getColor(self.pic,startX + 15,endY-1)
+        col = ImageWriter.getColor(self.pic,startX + 35,endY-1)
         if(col == [0,255,0]):
             return "Q"
         return "Z"

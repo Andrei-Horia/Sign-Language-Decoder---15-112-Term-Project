@@ -60,7 +60,14 @@ def record():
             A = ClassImageProcessing.ImageProcessing()
             imageChecker = A.startAll()
             val = A.getMessage()
-            letter = val[-1]
+            letter = val
+            letter.strip()
+            if(letter[-1]>='A' and letter[-1]<='Z'):
+               letter = letter[-1]
+            else:
+                letter= letter[-2]
+                
+            #print(letter[-1])
             #print(val)
 
         #Check the pressed key

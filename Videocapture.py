@@ -62,12 +62,11 @@ def record():
             val = A.getMessage()
             letter = val
             letter.strip()
-            if(letter[-1]>='A' and letter[-1]<='Z'):
+            if((letter[-1]>='A' and letter[-1]<='Z') or letter[-1] == " "):
                letter = letter[-1]
             else:
                 letter= letter[-2]
-                
-            #print(letter[-1])
+            print(letter[-1])
             #print(val)
 
         #Check the pressed key

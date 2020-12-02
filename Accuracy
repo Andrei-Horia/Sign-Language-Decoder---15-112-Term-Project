@@ -1,6 +1,8 @@
 import ImageWriter
 
 class IncreaseAccuracy():
+    
+    #We will need the picture, the letter, and all the coordinates of the letter 
     def __init__(self,pic,letter,left,right,up,down):
         self.letter = letter
         self.pic = pic
@@ -8,7 +10,8 @@ class IncreaseAccuracy():
         self.right = right
         self.up = up
         self.down = down
-        
+
+    #This function will put all the cases together 
     def all(self):
 
         res = self.letter
@@ -84,12 +87,18 @@ class IncreaseAccuracy():
                         
         return res
                 
-    #Checker for letter A N and T
+    #Checker for letter A N S and T
+    #This function will check for the thumb position
+        #If it is in the left - it's a A
+        #If it is in the middle - it's a T
+        #If it is in the right - it's a N
+    #If there is no thumb then our pic height will be smaller
+        #So that's a S
     def ANST(self,startX,endX,startY,endY):
         pic = self.pic
         midY = (startY + endY)//2
 
-        print(endY-startY)
+        #print(endY-startY)
         if(endY-startY<=150):
            return "S"
         
@@ -105,7 +114,13 @@ class IncreaseAccuracy():
                 elif(x <= 60):
                     return ("N")
                 
-
+    #Function to check for O N and S
+    #We will look at two things
+        #Case 1: O can have the middle filled in green
+        #Case 2: O can have the middle filled in black
+    #Case 1: if the middle pixel is green then it is definitly O
+    #Case 2: if the lower middle pixel is green, then it's an O
+        #This case is an aproximation of the hand position
     def ONS(self,val,startX,endX,startY,endY):
         midX = (startX+endX)//2
         midY = (startY+endY)//2
@@ -121,6 +136,11 @@ class IncreaseAccuracy():
         
         return val
 
+    #This function checks for R and U
+    #The difference is that R has a gap between the fingers
+    #So, we draw 3 lines in that region
+        #If we meet two separate black regions - then it's a R
+        #Else, it's a U
     def RU(self,startX,endX,startY,endY):
         pic = self.pic
 
@@ -132,6 +152,8 @@ class IncreaseAccuracy():
         countRow3 = 0
         
         for x in range(startX+2,startX+70):
+            
+            #We get the colors in the following regions
             col1 = ImageWriter.getColor(pic,x,startY+30)
             col2 = ImageWriter.getColor(pic,x,startY+25)
             col3 = ImageWriter.getColor(pic,x,startY+35)
@@ -168,7 +190,12 @@ class IncreaseAccuracy():
                 return "R"
                 
         return "U"    
-        
+
+    #Function to check for B M and E
+    #Works based on the size of the sign
+    #If the sign is small - it's a M
+    #If the sign is average - it's an E
+    #If the sign is big - it's a B
     def BME(self,startX,endX,startY,endY):
         if(endY-startY) < 110:
             return "M"
@@ -176,6 +203,12 @@ class IncreaseAccuracy():
             return "E"
         return "B"
 
+    #This function checks for F V and W
+    #It works in a very similar way to RU
+    #However, 3 black regions indicate and F or W
+    #Two black regions indicate a clear V
+    #For recognizing between an F and W, we look at the width of the picture
+    #That is becasause, in most of the cases F is a larger sign
     def FVW(self,startX,endX,startY,endY):
         pic = self.pic
 
@@ -188,6 +221,8 @@ class IncreaseAccuracy():
         count2 = 0
         
         for x in range(startX+2,endX):
+            
+            #Here we create the lines
             col1 = ImageWriter.getColor(pic,x,startY+35)
             col2 = ImageWriter.getColor(pic,x,startY+50)
                                         
@@ -203,6 +238,7 @@ class IncreaseAccuracy():
                 count1 += 1
 
             if(countRow1 == 3):
+                #Here we look at the size
                 if(endX-startX>148):
                     return "F"
                 return "W"
@@ -219,13 +255,18 @@ class IncreaseAccuracy():
                 count2 += 1
 
             if(countRow2 == 3):
+                #Here we look at the size
                 if(endX-startX>148):
                     return "F"
                 return "W"
                 
         return "V" 
 
-
+    #This function checks for I V and F
+    #Works very similar to FVW
+        #Case 1: A single black regions: it's an I
+        #Case 2: Two black regions: it's a V
+        #Case 3: Three black regions: it's a F
     def IVF(self,startX,endX,startY,endY):
         pic = self.pic
 
@@ -237,11 +278,13 @@ class IncreaseAccuracy():
         countRow3 = 0
         
         for x in range(startX+2,endX):
+
+            #Here we create the lines
             col1 = ImageWriter.getColor(pic,x,startY+45)
             col2 = ImageWriter.getColor(pic,x,startY+40)
             col3 = ImageWriter.getColor(pic,x,startY+35)
 
-            ImageWriter.setColor(pic,x-1,startY+45,[255,0,0])
+            #ImageWriter.setColor(pic,x-1,startY+45,[255,0,0])
             if(col1 == [0,0,0] and black1 == True):
                 countRow1 += 1
                 black1 = False
@@ -272,44 +315,54 @@ class IncreaseAccuracy():
             if(countRow3 == 3):
                 return "F"
 
+        #We check outside for V and I
         if(countRow1 == 2 or countRow2 == 2 or countRow3 == 2):
             return "V"
         return "I"  
 
+    #Function to check for V and X
+    #It's based on the height of the sign
+    #If the sign is average - it's a X
+    #If the sign is big - it's a V
     def VX(self,startX,endX,startY,endY):
         if(endY-startY > 167):
             return "V"
         return "X"
-    
+
+    #Function to check for K and P
     def KP(self,startX,endX,startY,endY):
         if(endY - startY < 140):
             return "K"
         return "P"
 
+    #Function to check for P and V
     def PV(self,startX,endX,startY,endY):
         if(endX-startX > 145):
             return "P"
         return "V"
-
-
+    
+    #Function to check for K and L
     def KL(self,startX,endX,startY,endY):
         if(endY-startY > 130):
             return "L"
         return "K"
 
+    #Function to check for F and K
     def FK(self,startX,endX,startY,endY):
         if(endY-startY > 130):
             return "F"
         return "K"
 
+    #Function to check for Q and Z
     def QZ(self,startX,endX,startY,endY):
         col = ImageWriter.getColor(self.pic,startX + 15,endY-1)
         if(col == [0,255,0]):
             return "Q"
         return "Z"
 
+    #Fucntion to check for E and J
     def EJ(self,startX,endX,startY,endY):
-        print(endX-startX)
+        #print(endX-startX)
         if(endX-startX >= 150):
             return "J"
         return "E"
